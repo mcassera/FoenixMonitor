@@ -14,7 +14,8 @@ kernelCopy.bin
 Load ```fmon.bin``` and run in SuperBASIC. This will load and install the other programs in the order needed to function. Once the basic program has been executed, the monitor can either be started by using a ```CALL $7e00``` command, or by pressing the ```RESTORE``` key.
 
 ### Commands
-The following list is the current list of functioning commands
+The following list is the current list of functioning commands.
+All numbers are in hexadecimal format.
 ```
 d [xxxx]  -  Disassemble 16 lines of code starting at xxxx. If no address is given, the program will continue from the previous list.
 m [xxxx]  -  Display 256 byte of memory starting at xxxx. If no address is given, the program will continue from the previous list.
