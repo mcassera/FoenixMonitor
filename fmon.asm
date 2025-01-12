@@ -29,7 +29,7 @@ ACC             =       $fd03                              ; accumulator
 XR              =       $fd04                            ; X register
 YR              =       $fd05                              ; Y register
 SP              =       $fd06                             ; stack pointer
-
+NMIFlag         =       $fd08                                                   ; disable if already activated.
 
 * = $a000
 Start:
@@ -72,10 +72,12 @@ _tcLoop:
 		cpx #$41
 		bne _tcLoop
 
-                jsr clearScreen
-                lda #$00                                                        ; We'll start by setting the X and Y position of the cursor
+                ;jsr clearScreen
+                ;lda #$00                                                        ; We'll start by setting the X and Y position of the cursor
+                lda $07eb
                 sta xPOS                                                        ; to 0,3
-                lda #$03
+                ;lda #$03
+                lda $07ea
                 sta yPOS
                 jsr getScreenPos                                                ; Translate the X,Y position into a memory location on the text/color matrix
                 lda #$03                                                        ; First, we need to set the I/O control to 3 so we can address the color matrix
@@ -83,7 +85,15 @@ _tcLoop:
                 lda #$26                                                        ; Then we'll set the color to inverse what the characters will be to 
                 sta (cursor)                                                    ; create a cursor to show where our x,y position is on the screen
                 stz $01                                                         ; Remember to resore the I/O control back to zero
+                lda NMIFlag
+                cmp #$02
+                bne skipB
+                lda #"B"
+                sta RHeaders+1
+skipB:
                 jsr DisplayRegisters
+                lda #"R"
+                sta RHeaders+1
 init_events:                                                                    ; we're setting up the kernel telling it where our memory will be
                 lda #<event                                                     ; this was setup above is th ZP section - we're using $c0 to $c6
                 sta kernel.args.events                                          ; as SuperBASIC does not use this memory
@@ -98,7 +108,17 @@ Loop:                                                                           
                 jmp Loop
 
 returnBASIC:
-                jsr clearScreen
+                ;jsr clearScreen
+                jsr cReturn
+                jsr clearCursor
+                lda xPOS
+                sta $07eb
+                lda yPOS
+                sta $07ea
+                lda cursor
+                sta $40 
+                lda cursor+1
+                sta $41
                 lda #$05 
                 sta BCURSOR                                                     ; Turns on the blinking BASIC cursor
                 rts                                                             ; This returns us to SuperBASIC
@@ -202,6 +222,7 @@ return:                                                                         
                 jsr saveBuffer
                 jsr evalCommand
 cReturn:
+                jsr clearCursor
                 stz xPOS                                                        ; if y hits the bottom of the screen, we'll just reset it to the top. 
                 inc yPOS
                 lda yPOS
@@ -736,7 +757,7 @@ scrollLoop:
                 sta (tempII2),y
                 lda #$03
                 sta $01
-                lda #$62
+                lda (tempII),y
                 sta (tempII2),y
                 iny
                 bne scrollLoop
@@ -744,6 +765,20 @@ scrollLoop:
                 inc tempII2+1
                 dex
                 bne scrollLoop
+
+
+lastLine:
+
+                dec $01
+                lda #$20
+                sta $d270,x 
+                inc $01
+                lda #$62
+                sta $d270,x 
+                inx
+                cpx #80
+                bcc lastLine
+
                 stz $01
 
                 rts
@@ -761,7 +796,7 @@ code1           .byte $00
 code2           .byte $00
 code3           .byte $00
 codeFlag        .byte $00
-RHeaders:       .text "    PC   SR  AC  XR  YR  SP   v0.1a"                            ; Headers for Registers
+RHeaders:       .text "*R  PC   SR  AC  XR  YR  SP   v0.1a"                            ; Headers for Registers
 
 hex:            .text "0123456789abcdef"
 lBuffer:        .fill 80,$20

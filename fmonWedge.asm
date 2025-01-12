@@ -12,6 +12,7 @@ ADD_B       =   $de0c                                                           
 ADD_result  =   $de18                                                           ; 4 bytes
 MMU_CTRL    =   $01
 BCURSOR     =   $d010
+BASIC_WARM  =   $8908
 
 PCH             =       $fd00                                                   ; program counter high byte
 PCL             =       $fd01                                                   ; program counter low byte
@@ -25,7 +26,7 @@ NMIFlag         =       $fd08                                                   
 
 
 
-* = $7e00
+* = $7f00
 Start:
 
 
@@ -46,7 +47,7 @@ Call:
         jsr SetMonitor
         jsr $a025
         jsr ReturnfromMonitor
-        jsr insertCLS
+        jsr insertRTS
         stz NMIFlag
         rts
 NMI:
@@ -73,7 +74,7 @@ contNMI:
         jsr SetMonitor
         jsr $a025
         jsr ReturnfromMonitor
-        jsr insertCLS
+        jsr insertRTS
         sei
         stz NMIFlag
         lda PCH
@@ -90,47 +91,25 @@ contNMI:
 Break:
         sta ACC
         stx XR
-        sty YR
+        sty YR  
         pla
         sta SR
-        pla
-        sta PCL
+        pla 
+        sta PCL 
         pla 
         sta PCH
         tsx
-        stx SP  
+        stx SP
         inc NMIFlag
-        lda SR
-        and #%00010000
-        beq noBreak
+        inc NMIFlag
         jsr SetMonitor
         jsr $a025
         jsr ReturnfromMonitor
-        jsr insertCLS
+        jsr insertRTS
+        sei
         stz NMIFlag
-        lda PCH
-        pha
-        lda PCL
-        pha
-        lda SR
-        pha
-        ldy YR
-        ldx XR
-        lda ACC
-        rti
-
-noBreak:
-        lda PCH
-        pha
-        lda PCL
-        pha
-        lda SR
-        pha
-        ldy YR
-        ldx XR
-        lda ACC
-        jmp $e108
-
+        cli
+        jmp BASIC_WARM
 
 SetMonitor:   
         sei
@@ -163,13 +142,12 @@ ReturnfromMonitor:
         cli
         rts
 
-insertCLS:
-        lda #12
+insertRTS:
+        
+        lda #$0d
         sta $0678
         lda #$01
         sta $0680
         rts
-
-
 
 

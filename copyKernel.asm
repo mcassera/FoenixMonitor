@@ -43,6 +43,22 @@ cpyLoop:
         lda $00
         sta buff
 
+
+        ;lda #$83
+        ;sta $00
+        ;lda #$1f                        ; memory $3:e000
+        ;sta $0f                         ; slot 7
+
+        ;lda #$93
+        ;sta $00
+        ;lda #$1f                        ; memory $3:e000
+        ;sta $0f                         ; slot 7
+
+        ;lda #$a3
+        ;sta $00
+        ;lda #$1f                        ; memory $3:e000
+        ;sta $0f                         ; slot 7
+
         lda #$b3
         sta $00
         lda #$1f                        ; memory $3:e000
@@ -66,16 +82,23 @@ cpyBack:
         bne cpyBack
 
 
-        lda #$2c
+        lda #$2c                        ;$7f2c
         sta $fffa
- 
-        lda #$7e
+        lda #$7f
         sta $fffb
 
         ;lda #$79
         ;sta $fffe
-        ;lda #$7e
+        ;lda #$7f
         ;sta $ffff
+        lda #$4c                        ; jmp $7f79
+        sta $fe80
+        lda #$79
+        sta $fe81
+        lda #$7f
+        sta $fe82
+
+
 
         cli
         rts
