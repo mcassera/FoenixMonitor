@@ -11,7 +11,7 @@ fmon.bin
 fmonWedge.bin
 kernelCopy.bin
 ```
-Load ```fmon.bin``` and run in SuperBASIC. This will load and install the other programs in the order needed to function. Once the basic program has been executed, the monitor can either be started by using a ```CALL $7e00``` command, or by pressing the ```RESTORE``` key. Encountering a ```BRK``` command in the code will also start the monitor.
+Load ```fmon.bas``` and run in SuperBASIC. This will load and install the other programs in the order needed to function. Once the basic program has been executed, the monitor can either be started by using a ```CALL $7e00``` command, or by pressing the ```RESTORE``` key. Encountering a ```BRK``` command in the code will also start the monitor.
 
 ### Commands
 The following list is the current list of functioning commands.
